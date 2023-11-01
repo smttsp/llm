@@ -9,10 +9,9 @@ input text using the two common preprocessing steps:
 
 """
 
-
-class CustomOpenAIEmbeddings(OpenAIEmbeddings):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+class OpenAIEmbeddingsLower(OpenAIEmbeddings):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def preprocess_text(self, text):
         # Add your preprocessing steps here, for example, converting text to lowercase
@@ -23,7 +22,12 @@ class CustomOpenAIEmbeddings(OpenAIEmbeddings):
         # Call the original embed_query method with the preprocessed text
         return super().embed_query(preprocessed_text)
 
+    def embed_documents(self, texts, **kwargs):
+        preprocessed_texts = [self.preprocess_text(text) for text in texts]
+        # Call the original embed_query method with the preprocessed text
+        return super().embed_documents(preprocessed_texts, **kwargs)
 
-# Example usage
-oa_embedder = CustomOpenAIEmbeddings()
-txt_embed = oa_embedder.embed_query(df.text[1])
+
+# # Example usage
+# oa_embedder = CustomOpenAIEmbeddings()
+# txt_embed = oa_embedder.embed_query(df.text[1])
