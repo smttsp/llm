@@ -10,65 +10,102 @@ It has two strategies for determining the predicted label:
 
 import pandas
 from pprint import pprint
-from langchain.vectorstores import Chroma
+from langchain.vectorstores import Chroma, FAISS
+
 from langchain.document_loaders.csv_loader import CSVLoader
 
 from .constants import VECTOR_DB_DIRECTORY
 from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 import numpy
 
 
-def get_chroma_vectorstore(file_path, persist_directory=VECTOR_DB_DIRECTORY):
-    oa_embedder = OpenAIEmbeddings()
+class OpenAIEmbeddingsLower(OpenAIEmbeddings):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def preprocess_text(self, text):
+        # Add your preprocessing steps here, for example, converting text to lowercase
+        return text.lower()
+
+    def embed_query(self, text):
+        preprocessed_text = self.preprocess_text(text)
+        # Call the original embed_query method with the preprocessed text
+        return super().embed_query(preprocessed_text)
+
+    def embed_documents(self, texts, **kwargs):
+        preprocessed_texts = [self.preprocess_text(text) for text in texts]
+        # Call the original embed_query method with the preprocessed text
+        return super().embed_documents(preprocessed_texts, **kwargs)
+
+
+def get_vectorstore(file_path, persist_directory=VECTOR_DB_DIRECTORY):
     loader = CSVLoader(
-        file_path=file_path, metadata_columns=["label", "text"]
+        file_path=file_path, source_column="text", metadata_columns=["label"]
     )
     docs = loader.load()
 
-    vectordb = Chroma.from_documents(
-        documents=docs, embedding=oa_embedder #, persist_directory=persist_directory
+    vector_db = FAISS.from_documents(
+        docs,
+        OpenAIEmbeddings(),
     )
-    # vectordb = Milvus.from_documents(
-    #     docs,
-    #     embedding=embedding,
-    #     # connection_args={"uri": "Use your uri:)", "token": "Use your token:)"},
+
+    index_id = 0
+    #
+    # embedding_vector2 = vector_db2.index.reconstruct_n(index_id, 1)[0]
+    embeds = vector_db.index.reconstruct_n(index_id, 1)[0]
+    # embeds = vector_db._collection.get(include=['embeddings', "metadatas"])
+    print(embeds[:3])
+
+    # vector_db2 = FAISS.from_documents(
+    #     documents=docs, embedding=OpenAIEmbeddingsLower()
     # )
+    # embeds2 = vector_db2.index.reconstruct_n(index_id, 1)[0]
+    # # embeds2 = vector_db2._collection.get(include=['embeddings', "metadatas"])
+    # print(embeds2[:3])
 
     # vectordb._persist_directory = persist_directory
-    return vectordb
+    return vector_db
 
 
 def disease_finder_v2():
-    vector_db = get_chroma_vectorstore("data/train.csv")
+    vector_db = get_vectorstore("data/test.csv")
     df = pandas.read_csv("data/test.csv")
 
-    embeds = vector_db._collection.get(include=['embeddings', "metadatas"])
-
+    # embeds = vector_db._collection.get(include=['embeddings', "metadatas"])
     oa_embedder = OpenAIEmbeddings()
-    txt_embed = oa_embedder.embed_query(df.text[1])
+    # oa_embedder = OpenAIEmbeddingsLower()
 
+    # cur_text = df.text[idx]
+    # txt_embed = oa_embedder.embed_query(cur_text)
+    # embedding_vector = vector_db.index.reconstruct_n(idx, 1)[0]
     mx = -1
-    for embed, meta in zip(embeds["embeddings"], embeds["metadatas"]):
-        cur_cor = numpy.dot(embed, txt_embed)
+
+    idx = 0
+    cur_text = df.text[idx]
+    print(df.label[idx], "---", cur_text)
+    txt_embed = oa_embedder.embed_query(cur_text)
+    index_to_docstore_id = vector_db.index_to_docstore_id
+    for idx in range(len(df)):
+        embedding_vector = vector_db.index.reconstruct_n(idx, 1)[0]
+        metadata = vector_db.docstore._dict[index_to_docstore_id[idx]]
+        cur_cor = numpy.dot(embedding_vector, txt_embed)
         if cur_cor > mx:
             mx = cur_cor
-            print(cur_cor, meta["label"], "---", meta["text"])
-            e1 = oa_embedder.embed_query(meta["text"].lower())
-            e2 = oa_embedder.embed_query(df.text[1].lower())
-            print(numpy.dot(e1, e2))
+            print(cur_cor, df.label[idx], "---", cur_text)
             print("*" * 30)
             print()
 
+
     cnt, cnt2, cnt3 = 0, 0, 0
-    top_n = 250
+    top_n = 10
     for text, label in zip(df.text, df.label):
 
-        res = vector_db.get_relevant_documents(text, top_n)
-        top_n_results = vector_db.max_marginal_relevance_search(text, fetch_k=top_n, k=50)
+        # res = vector_db.get_relevant_documents(text, top_n)
+        top_n_results = vector_db.max_marginal_relevance_search(text.lower(), fetch_k=top_n, k=3)
         pred_labels = [doc.metadata.get("label") for doc in top_n_results]
         print(f"{label=}, {pred_labels=}")
 
-        break
         # print("*" * 30)
         cnt += int(label in pred_labels)
         cnt2 += int(pred_labels.count(label) >= 2)
