@@ -8,6 +8,8 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 import numpy
 
 from .disease_finder_v2 import get_vectorstore
+from langchain.llms import OpenAI
+from langchain.retrievers.merger_retriever import MergerRetriever
 
 
 def disease_finder_v3():
@@ -15,14 +17,22 @@ def disease_finder_v3():
     df = pandas.read_csv("data/test.csv")
 
     k = 5
-    cnt = 0
+    cnts = numpy.zeros(k)
 
-    oe_embedder = OpenAIEmbeddings()
     for text, label in zip(df.text, df.label):
-        embedding_vector = oe_embedder.embed_query(text)
-        top_n_results = vector_db.similarity_search_by_vector(embedding_vector, k=k)
+        retriever_all = vector_db.as_retriever(
+            search_type="similarity", search_kwargs={"k": 5, "include_metadata": True}
+        )
 
-        # Ask chatgpt for the answer
+        top_n_results = retriever_all.get_relevant_documents(text)
 
-    print(cnt / len(df), "of them accurately predicted")
-    return cnt / len(df)
+        pred_labels = [doc.metadata.get("label") for doc in top_n_results]
+        print(f"{label=}, {pred_labels=}")
+
+        for i in range(k):
+            cnts[i] += int(pred_labels.count(label) > i)
+
+    for i in range(k):
+        print(f"at least {i + 1} match {cnts[i] / len(df):.3f}")
+
+    return cnts / len(df)
