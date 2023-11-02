@@ -3,7 +3,7 @@ import os
 import pandas as pd
 from dotenv import find_dotenv, load_dotenv
 
-from llm_projects.disease_finder_v2 import (
+from llm_projects.disease_finder import (
     disease_finder_v2,
 )
 
