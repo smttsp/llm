@@ -80,7 +80,7 @@ def get_vectorstore(file_path, persist_directory=VECTOR_DB_DIRECTORY):
     loader = CustomCSVLoader(
         file_path=file_path,
         source_column="text",
-        metadata_columns=["label"],
+        # metadata_columns=["label"],
         columns_to_skip=["Unnamed: 0"]
     )
     docs = loader.load()
