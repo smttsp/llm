@@ -100,12 +100,13 @@ def disease_finder_v2():
     df = pandas.read_csv("data/test.csv")
 
     k = 5
+    # top_n = 5
     cnts = numpy.zeros(k)
 
     oe_embedder = OpenAIEmbeddings()
     for text, label in zip(df.text, df.label):
         embedding_vector = oe_embedder.embed_query(text)
-        top_n_results = vector_db.similarity_search_by_vector(embedding_vector, k=5)
+        top_n_results = vector_db.similarity_search_by_vector(embedding_vector, k=k)
 
         # top_n_results = vector_db.max_marginal_relevance_search(
         #    text, fetch_k=top_n, k=k
