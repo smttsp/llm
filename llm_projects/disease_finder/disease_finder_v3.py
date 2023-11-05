@@ -4,12 +4,10 @@ to generate the answer for the questions, i.e. figuring out the disease.
 """
 
 import pandas
-from langchain.embeddings.openai import OpenAIEmbeddings
 import numpy
+from langchain.prompts import ChatPromptTemplate
 
 from .disease_finder_v2 import get_vectorstore
-from langchain.llms import OpenAI
-from langchain.retrievers.merger_retriever import MergerRetriever
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQA
 
@@ -19,7 +17,6 @@ def disease_finder_v3():
     df = pandas.read_csv("data/test.csv")
 
     k = 5
-    cnts = numpy.zeros(k)
     llm = ChatOpenAI(model_name="gpt-3.5-turbo-0301", temperature=0)
 
     question_center = (
@@ -28,17 +25,14 @@ def disease_finder_v3():
     )
 
     retriever_all = vector_db.as_retriever(
-        search_type="similarity", search_kwargs={"k": 3, "include_metadata": True}
+        search_type="similarity", search_kwargs={"k": k, "include_metadata": True}
     )
-
-    from langchain.prompts import ChatPromptTemplate, PromptTemplate
 
     # Build prompt
     template = """Use only the following pieces of context to answer the question at the end.
         Don't use any other information. Try to use the labels in the context to help you answer the question.
         This won't be used for diagnosis, but to help you understand the question. 
-        Keep your answer only the disease name, don't include any other information,
-        not even punctuation.
+        Keep your answer only the disease name, don't include any other information
         {context}
         Question: {question}
     """
