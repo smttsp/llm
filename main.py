@@ -1,10 +1,9 @@
 import os
 
-import pandas as pd
 from dotenv import find_dotenv, load_dotenv
 
-from llm_projects.disease_finder import (
-    disease_finder_v3,
+from llm_projects.book_summarizer import (
+    read_book_pdf
 )
 
 load_dotenv(find_dotenv())
@@ -12,4 +11,5 @@ load_dotenv(find_dotenv())
 OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]
 
 if __name__ == "__main__":
-    disease_finder_v3()
+    book_path = "data/books/lotr.pdf"
+    read_book_pdf(book_path)

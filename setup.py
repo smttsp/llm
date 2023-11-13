@@ -8,7 +8,7 @@ from distutils.core import setup
 
 
 setup(
-    name="example_template",
+    name="llm_projects",
     version="1.0.1",
-    packages=["example_template"],
+    packages=["llm_projects"],
 )
