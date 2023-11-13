@@ -3,13 +3,13 @@ ChatGPT for which uses the similar docs that are found in the first step
 to generate the answer for the questions, i.e. figuring out the disease.
 """
 
-import pandas
 import numpy
+import pandas
+from langchain.chains import RetrievalQA
+from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 
 from .disease_finder_v2 import get_vectorstore
-from langchain.chat_models import ChatOpenAI
-from langchain.chains import RetrievalQA
 
 
 def disease_finder_v3():
@@ -25,7 +25,8 @@ def disease_finder_v3():
     )
 
     retriever_all = vector_db.as_retriever(
-        search_type="similarity", search_kwargs={"k": k, "include_metadata": True}
+        search_type="similarity",
+        search_kwargs={"k": k, "include_metadata": True},
     )
 
     # Build prompt
@@ -43,7 +44,7 @@ def disease_finder_v3():
         llm,
         retriever=retriever_all,
         return_source_documents=True,
-        chain_type_kwargs={"prompt": QA_CHAIN_PROMPT}
+        chain_type_kwargs={"prompt": QA_CHAIN_PROMPT},
     )
 
     cnt = 0

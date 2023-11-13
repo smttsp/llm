@@ -12,17 +12,14 @@ import csv
 from io import TextIOWrapper
 from typing import Dict, List, Optional, Sequence
 
-from langchain.docstore.document import Document
-
-
+import numpy
 import pandas
+from langchain.docstore.document import Document
+from langchain.document_loaders.csv_loader import CSVLoader
+from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
 
-from langchain.document_loaders.csv_loader import CSVLoader
-
 from .constants import VECTOR_DB_DIRECTORY
-from langchain.embeddings.openai import OpenAIEmbeddings
-import numpy
 
 
 class CustomCSVLoader(CSVLoader):
@@ -37,7 +34,12 @@ class CustomCSVLoader(CSVLoader):
         columns_to_skip: Optional[List[str]] = None,
     ):
         super().__init__(
-            file_path, source_column, metadata_columns, csv_args, encoding, autodetect_encoding
+            file_path,
+            source_column,
+            metadata_columns,
+            csv_args,
+            encoding,
+            autodetect_encoding,
         )
         self.columns_to_skip = columns_to_skip or []
 
@@ -61,7 +63,8 @@ class CustomCSVLoader(CSVLoader):
             content = "\n".join(
                 f"{k.strip()}: {v.strip()}"
                 for k, v in row.items()
-                if k not in self.metadata_columns and k not in self.columns_to_skip
+                if k not in self.metadata_columns
+                and k not in self.columns_to_skip
             )
 
             metadata = {"source": source, "row": i}
@@ -69,7 +72,9 @@ class CustomCSVLoader(CSVLoader):
                 try:
                     metadata[col] = row[col]
                 except KeyError:
-                    raise ValueError(f"Metadata column '{col}' not found in CSV file.")
+                    raise ValueError(
+                        f"Metadata column '{col}' not found in CSV file."
+                    )
             doc = Document(page_content=content, metadata=metadata)
             docs.append(doc)
 
@@ -81,7 +86,7 @@ def get_vectorstore(file_path, persist_directory=VECTOR_DB_DIRECTORY):
         file_path=file_path,
         source_column="text",
         # metadata_columns=["label"],
-        columns_to_skip=["Unnamed: 0"]
+        columns_to_skip=["Unnamed: 0"],
     )
     docs = loader.load()
 
@@ -106,7 +111,9 @@ def disease_finder_v2():
     oe_embedder = OpenAIEmbeddings()
     for text, label in zip(df.text, df.label):
         embedding_vector = oe_embedder.embed_query(text)
-        top_n_results = vector_db.similarity_search_by_vector(embedding_vector, k=k)
+        top_n_results = vector_db.similarity_search_by_vector(
+            embedding_vector, k=k
+        )
 
         # top_n_results = vector_db.max_marginal_relevance_search(
         #    text, fetch_k=top_n, k=k

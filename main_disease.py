@@ -2,9 +2,8 @@ import os
 
 from dotenv import find_dotenv, load_dotenv
 
-from llm_projects.disease_finder import (
-    disease_finder_v3, disease_finder_v2
-)
+from llm_projects.disease_finder import disease_finder_v2, disease_finder_v3
+
 
 load_dotenv(find_dotenv())
 

@@ -8,23 +8,22 @@ input text using the two common preprocessing steps:
 3. Lemmatize
 
 """
-from langchain.embeddings.openai import OpenAIEmbeddings
-
 import nltk
+from langchain.embeddings.openai import OpenAIEmbeddings
 from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import word_tokenize
 
 
 # Download the NLTK stop words data
-nltk.download('stopwords')
-nltk.download('punkt')
+nltk.download("stopwords")
+nltk.download("punkt")
 
 # Get the list of English stop words
-STOP_WORDS = set(stopwords.words('english'))
+STOP_WORDS = set(stopwords.words("english"))
 
 # Download the WordNet lemmatizer data
-nltk.download('wordnet')
+nltk.download("wordnet")
 
 # Initialize the lemmatizer
 LEMMATIZER = WordNetLemmatizer()
@@ -41,7 +40,7 @@ def lemmatize(text, lemmatizer=None):
     lemmatized_words = [lemmatizer.lemmatize(word) for word in words]
 
     # Join the lemmatized words back into a sentence
-    lemmatized_sentence = ' '.join(lemmatized_words)
+    lemmatized_sentence = " ".join(lemmatized_words)
 
     # Print the lemmatized sentence
     # print(lemmatized_sentence)
@@ -59,7 +58,7 @@ def remove_stopwords(text, stop_words=None):
     filtered_words = [word for word in words if word.lower() not in stop_words]
 
     # Join the filtered words back into a sentence
-    filtered_sentence = ' '.join(filtered_words)
+    filtered_sentence = " ".join(filtered_words)
 
     # Print the filtered sentence
     # print(filtered_sentence)

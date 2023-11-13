@@ -1,7 +1,7 @@
 import numpy
+import pandas
 from langchain.embeddings.openai import OpenAIEmbeddings
 from tqdm import tqdm
-import pandas
 
 
 def get_embeddings(df):
