@@ -11,9 +11,17 @@ def plot_categorical(df, key):
     plt.xlabel(key)
     plt.ylabel('Count')
 
-    plt.xticks(
-        rotation=45,
-        ha='right'
-    )
+    plt.xticks(rotation=45, ha='right')
+
+    plt.show()
+
+
+def plot_distributions(counts, x_label, per="visit"):
+    plt.figure(figsize=(8, 6))
+    sns.histplot(counts, bins=100, kde=False, color='salmon')
+    plt.title(f'Distribution of {x_label} per {per}')
+    plt.xlabel(x_label)
+    plt.ylabel('Count')
+    plt.xticks(rotation=45, ha='right')
 
     plt.show()
