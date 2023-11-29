@@ -7,4 +7,10 @@ from .statistical_analyses import (
     get_omr_statistics,
     plot_distributions,
     plot_categorical,
+    plot_distributions_xy,
+)
+
+
+from .complex_analysis import (
+    admission_to_transfer
 )
