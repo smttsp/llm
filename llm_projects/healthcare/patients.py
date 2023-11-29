@@ -35,7 +35,6 @@ def fnc_age(patient_df, key="anchor_age"):
     plt.show()
 
 
-
 def fnc_dod(patient_df):
     death_age = patient_df.anchor_age[patient_df.dod.notnull()]
     plt.figure(figsize=(8, 6))

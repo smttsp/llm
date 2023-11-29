@@ -28,5 +28,13 @@ def read_csvs(folder):
 
 
 # completed functions
+
+# admissions_df = pandas.read_csv(files[0])
 # patient_df = pandas.read_csv(files[18])
+
 # get_patient_statistics(df_dict, patient_df)
+# get_admissions_statistics(admissions_df)
+
+
+# services_df = pandas.read_csv(files[15])  # no information, only provider_id
+# get_services_statistics(services_df)
