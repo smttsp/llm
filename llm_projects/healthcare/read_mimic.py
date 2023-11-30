@@ -11,13 +11,47 @@ from llm_projects.healthcare import (
 )
 from pprint import pprint
 
+from .complex_analysis import admission_to_transfer
+
 
 def read_csvs(folder):
     files = glob(folder + "*.csv")
+    # completed = [
+    #     "patients", "admissions", "provider", "services", "d_labitems", "omr"
+    # ]
+    # files = [f for f in files if f.split("/")[-1].split(".")[0] not in completed]
+
+    pair = ["admissions", "transfers"]
+
+    df_dict = {}
+    for idx, file in enumerate(files):
+        filename = file.split("/")[-1].split(".")[0]
+        if filename not in pair:
+            continue
+
+        df = pandas.read_csv(file)
+        print(idx, filename, len(df.columns), df.shape)
+        # print(df.columns)
+        # pprint(df.head(5).to_dict())
+
+        # print("\n\n")
+        # print(df.columns)
+        # print()
+        df_dict[filename] = df
+
+    df0 = df_dict[pair[0]]
+    df1 = df_dict[pair[1]]
+
+    admission_to_transfer(df0, df1)
+
+    pass
+
+
+def read_csvs_old(folder):
+    files = glob(folder + "*.csv")
 
     completed = [
-        "patients", "admissions", "provider", "services", "d_labitems",
-        "omr"
+        "patients", "admissions", "provider", "services", "d_labitems", "omr"
     ]
 
     skipped_for_now = ["d_hcpcs"]

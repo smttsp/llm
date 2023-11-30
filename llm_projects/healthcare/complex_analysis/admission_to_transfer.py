@@ -1,55 +1,89 @@
 from llm_projects.healthcare.statistical_analyses import (
     plot_distributions, plot_distributions_xy
 )
+import pandas
+from scipy import stats
 
 
-def get_admission_transfer_stats(
-    admission_type_distribution,
-    discharge_location_distribution,
-    care_unit_distribution,
-):
-    x = admission_type_distribution['admission_type']
-    y = admission_type_distribution['counts']
-    plot_distributions_xy(x, y, "admission_type", "admission")
+def visit_frequency_by_race(merged_df):
+    race_distribution = merged_df.groupby(['race'])[['subject_id', 'hadm_id']].nunique().reset_index()
 
-    x = discharge_location_distribution['discharge_location']
-    y = discharge_location_distribution['counts']
-    plot_distributions_xy(x, y, "discharge_location", "admission")
+    race_distribution['hadm_subject_ratio'] = race_distribution['hadm_id'] / race_distribution['subject_id']
 
-    x = care_unit_distribution['careunit']
-    y = care_unit_distribution['counts']
-    plot_distributions_xy(x, y, "care_unit", "transfer")
-
-
-def get_distributions(admissions_df, transfers_df):
-    admission_type_distribution = admissions_df[
-        'admission_type'
-    ].value_counts().reset_index(name='counts')
-
-    discharge_location_distribution = admissions_df[
-        'discharge_location'
-    ].value_counts().reset_index(name='counts')
-
-    care_unit_distribution = transfers_df[
-        'careunit'
-    ].value_counts().reset_index(name='counts')
-
-    return (
-        admission_type_distribution,
-        discharge_location_distribution,
-        care_unit_distribution,
+    # Sort the DataFrame by the ratio in descending order
+    sorted_race_distribution = race_distribution.sort_values(
+        by='hadm_subject_ratio',
+        ascending=False
     )
+    plot_distributions_xy(
+        x=sorted_race_distribution["race"],
+        y=sorted_race_distribution["hadm_subject_ratio"],
+        x_label="hadm_subject_ratio",
+        top=30,
+    )
+
+    return None
+
+
+def get_length_of_stay(merged_df):
+    merged_df['length_of_stay_days'] = round((
+        pandas.to_datetime(merged_df['dischtime'])
+        - pandas.to_datetime(merged_df['admittime'])
+    ).dt.total_seconds() / 3600 / 24, 2)
+    return merged_df
+
+
+def plot_length_of_stay(merged_df):
+    unique_times = merged_df.groupby(['subject_id', 'hadm_id'])[
+        'length_of_stay_days'].first().reset_index()
+
+    plot_distributions(unique_times["length_of_stay_days"], "length_of_stay_days")
+
+    return None
+
+
+def get_single_distribution(merged_df, column_name, categ):
+    a_distribution = merged_df[
+        column_name
+    ].value_counts().reset_index(name='counts')
+    x = a_distribution[column_name]
+    y = a_distribution['counts']
+    plot_distributions_xy(x, y, column_name, categ)
+
+    return None
+
+
+def get_outlier_stays(merged_df):
+    # Calculate Z-scores
+    merged_df['length_of_stay_zscore'] = stats.zscore(merged_df['length_of_stay_days'])
+
+    # Identify outliers based on a threshold (e.g., Z-score > 3 or < -3)
+    outliers = merged_df[abs(merged_df['length_of_stay_zscore']) > 3]
+    long_stays = outliers.drop_duplicates(subset=['subject_id', 'hadm_id'])
+    # long_stays = outliers[['subject_id', 'hadm_id', 'length_of_stay_days', "length_of_stay_zscore"]]
+    return long_stays
 
 
 def admission_to_transfer(admissions_df, transfers_df):
-    (
-        admission_type_distribution,
-        discharge_location_distribution,
-        care_unit_distribution,
-    ) = get_distributions(admissions_df, transfers_df)
+    transfers_df['hadm_id'] = transfers_df['hadm_id'].astype('Int64')
 
-    get_admission_transfer_stats(
-        admission_type_distribution,
-        discharge_location_distribution,
-        care_unit_distribution,
+    merged_df = pandas.merge(
+        transfers_df, admissions_df,
+        on=['subject_id', 'hadm_id'],
+        how='left',
+        suffixes=('_transfer', '_admission')
     )
+
+    merged_df = get_length_of_stay(merged_df)
+
+    # get_single_distribution(merged_df, column_name='admission_type', categ="admission")
+    # get_single_distribution(
+    #     merged_df, column_name='discharge_location', categ="admission"
+    # )
+    # get_single_distribution(merged_df, column_name='careunit', categ="transfer")
+    # visit_frequency_by_race(merged_df)
+    # plot_length_of_stay(merged_df)
+
+    get_outlier_stays(merged_df)
+
+    return None
