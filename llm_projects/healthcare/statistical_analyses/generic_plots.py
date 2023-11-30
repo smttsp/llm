@@ -27,10 +27,10 @@ def plot_distributions(counts, x_label, per="visit"):
     plt.show()
 
 
-def plot_distributions_xy(x, y, x_label, per="visit"):
+def plot_distributions_xy(x, y, x_label, per="visit", top=20):
     plt.figure(figsize=(8, 6))
 
-    plt.bar(x, y, color='salmon')
+    plt.bar(x[:top], y[:top], color='salmon')
     # sns.histplot(counts, bins=100, kde=False, color='salmon')
     plt.title(f'Distribution of {x_label} per {per}')
     plt.xlabel(x_label)
