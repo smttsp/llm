@@ -23,6 +23,7 @@ def plot_distributions(counts, x_label, per="visit"):
     plt.xlabel(x_label)
     plt.ylabel('Count')
     plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
 
     plt.show()
 

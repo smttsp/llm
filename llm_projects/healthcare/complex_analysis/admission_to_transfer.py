@@ -30,6 +30,8 @@ def get_length_of_stay(merged_df):
         pandas.to_datetime(merged_df['dischtime'])
         - pandas.to_datetime(merged_df['admittime'])
     ).dt.total_seconds() / 3600 / 24, 2)
+
+    merged_df[merged_df["length_of_stay_days"].isna()] = 0
     return merged_df
 
 
@@ -54,14 +56,12 @@ def get_single_distribution(merged_df, column_name, categ):
 
 
 def get_outlier_stays(merged_df):
-    # Calculate Z-scores
     merged_df['length_of_stay_zscore'] = stats.zscore(merged_df['length_of_stay_days'])
 
-    # Identify outliers based on a threshold (e.g., Z-score > 3 or < -3)
     outliers = merged_df[abs(merged_df['length_of_stay_zscore']) > 3]
     long_stays = outliers.drop_duplicates(subset=['subject_id', 'hadm_id'])
-    # long_stays = outliers[['subject_id', 'hadm_id', 'length_of_stay_days', "length_of_stay_zscore"]]
-    return long_stays
+
+    return merged_df, long_stays
 
 
 def admission_to_transfer(admissions_df, transfers_df):
@@ -75,7 +75,10 @@ def admission_to_transfer(admissions_df, transfers_df):
     )
 
     merged_df = get_length_of_stay(merged_df)
+    merged_df, long_stays = get_outlier_stays(merged_df)
 
+    plot_distributions(long_stays["careunit"], "careunit")
+    long_stay_per_user = long_stays.subject_id.value_counts().reset_index(name="counts")
     # get_single_distribution(merged_df, column_name='admission_type', categ="admission")
     # get_single_distribution(
     #     merged_df, column_name='discharge_location', categ="admission"
@@ -84,6 +87,5 @@ def admission_to_transfer(admissions_df, transfers_df):
     # visit_frequency_by_race(merged_df)
     # plot_length_of_stay(merged_df)
 
-    get_outlier_stays(merged_df)
 
     return None
