@@ -11,6 +11,4 @@ from .statistical_analyses import (
 )
 
 
-from .complex_analysis import (
-    admission_to_transfer
-)
+from .complex_analysis import admission_to_transfer

@@ -3,8 +3,10 @@ from .generic_plots import plot_distributions
 
 
 def get_diagnosis_statistics(diagnoses_icd_df: pandas.DataFrame):
-    grouped_data = diagnoses_icd_df.groupby(
-        ['subject_id', 'hadm_id']).size().reset_index(name='counts'
+    grouped_data = (
+        diagnoses_icd_df.groupby(["subject_id", "hadm_id"])
+        .size()
+        .reset_index(name="counts")
     )
 
     # print(grouped_data)

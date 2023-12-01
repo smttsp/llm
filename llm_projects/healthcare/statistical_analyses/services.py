@@ -4,25 +4,34 @@ import matplotlib.pyplot as plt
 
 
 def plot_num_services_per_patient(services_df: pandas.DataFrame):
-    num_services_each_patient = services_df.groupby('subject_id').size().reset_index(name='counts')
-    num_services_each_patient = num_services_each_patient.sort_values(by='counts', ascending=False)
+    num_services_each_patient = (
+        services_df.groupby("subject_id").size().reset_index(name="counts")
+    )
+    num_services_each_patient = num_services_each_patient.sort_values(
+        by="counts", ascending=False
+    )
 
-    max_service = num_services_each_patient['counts'].max() + 1
-    sns.histplot(num_services_each_patient['counts'],
-                 bins=range(1, max_service),
-                 kde=False, color='skyblue')
+    max_service = num_services_each_patient["counts"].max() + 1
+    sns.histplot(
+        num_services_each_patient["counts"],
+        bins=range(1, max_service),
+        kde=False,
+        color="skyblue",
+    )
 
-    plt.title('Distribution of Number of Services per Patient')
-    plt.xlabel('Number of Services')
-    plt.ylabel('Number of Patients')
+    plt.title("Distribution of Number of Services per Patient")
+    plt.xlabel("Number of Services")
+    plt.ylabel("Number of Patients")
     plt.show()
 
 
-def plot_distribution_of_service_type(services_df: pandas.DataFrame, service_column):
-    services_df[service_column].value_counts().plot(kind='bar', color='skyblue')
-    plt.title(f'Distribution of {service_column}')
+def plot_distribution_of_service_type(
+    services_df: pandas.DataFrame, service_column
+):
+    services_df[service_column].value_counts().plot(kind="bar", color="skyblue")
+    plt.title(f"Distribution of {service_column}")
     plt.xlabel(service_column)
-    plt.ylabel('Count')
+    plt.ylabel("Count")
     plt.show()
 
 

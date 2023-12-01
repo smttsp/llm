@@ -3,7 +3,7 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 
 
 def get_embeddings(df):
-    df = df.drop_duplicates(subset=['subject_id'])
+    df = df.drop_duplicates(subset=["subject_id"])
 
     embedder = OpenAIEmbeddings()
 

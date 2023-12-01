@@ -10,5 +10,5 @@ load_dotenv(find_dotenv())
 OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]
 
 if __name__ == "__main__":
-    folder = "/users/samet/desktop/mimic-iv-2.2/hosp/"
+    folder = "/users/samet/desktop/mimic-iv-2.2/note/"
     read_csvs(folder)
