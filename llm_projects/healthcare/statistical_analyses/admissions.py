@@ -1,6 +1,6 @@
+import matplotlib.pyplot as plt
 import pandas
 import seaborn as sns
-import matplotlib.pyplot as plt
 
 
 def get_admissions_statistics(admissions_df: pandas.DataFrame):

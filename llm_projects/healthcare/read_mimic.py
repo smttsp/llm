@@ -1,19 +1,18 @@
-import pandas
 from glob import glob
-
-from llm_projects.healthcare import (
-    get_patient_statistics,
-    get_admissions_statistics,
-    get_services_statistics,
-    get_labitem_statistics,
-    get_diagnosis_statistics,
-    get_omr_statistics,
-)
 from pprint import pprint
 
-from llm_projects.healthcare.text_data_analyses.embedding import (
-    get_embeddings,
+import pandas
+
+from llm_projects.healthcare import (
+    get_admissions_statistics,
+    get_diagnosis_statistics,
+    get_labitem_statistics,
+    get_omr_statistics,
+    get_patient_statistics,
+    get_services_statistics,
 )
+from llm_projects.healthcare.text_data_analyses.embedding import get_embeddings
+
 from .complex_analysis import admission_to_transfer
 
 

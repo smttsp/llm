@@ -1,6 +1,6 @@
+import matplotlib.pyplot as plt
 import pandas
 import seaborn as sns
-import matplotlib.pyplot as plt
 
 
 def plot_num_services_per_patient(services_df: pandas.DataFrame):

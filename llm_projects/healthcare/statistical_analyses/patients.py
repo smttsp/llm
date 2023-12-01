@@ -1,6 +1,6 @@
+import matplotlib.pyplot as plt
 import pandas
 import seaborn as sns
-import matplotlib.pyplot as plt
 
 
 def fnc_gender(patient_df: pandas.DataFrame, key="gender"):

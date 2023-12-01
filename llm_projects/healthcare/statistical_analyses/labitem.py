@@ -1,6 +1,7 @@
+import matplotlib.pyplot as plt
 import pandas
 import seaborn as sns
-import matplotlib.pyplot as plt
+
 from .generic_plots import plot_categorical
 
 

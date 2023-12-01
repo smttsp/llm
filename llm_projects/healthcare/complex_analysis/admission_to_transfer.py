@@ -1,9 +1,10 @@
+import pandas
+from scipy import stats
+
 from llm_projects.healthcare.statistical_analyses import (
     plot_distributions,
     plot_distributions_xy,
 )
-import pandas
-from scipy import stats
 
 
 def visit_frequency_by_race(merged_df):
