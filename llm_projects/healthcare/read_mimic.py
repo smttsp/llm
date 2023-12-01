@@ -11,7 +11,7 @@ from llm_projects.healthcare import (
     get_patient_statistics,
     get_services_statistics,
 )
-from llm_projects.healthcare.text_data_analyses.embedding import get_embeddings
+from llm_projects.healthcare.text_data_analyses.embedding import embedder_test
 
 from .complex_analysis import admission_to_transfer
 
@@ -33,10 +33,13 @@ def read_csvs(folder):
             #     "quotechar": '"',
             #     # "fieldnames": columns,
             # },
-            metadata_columns=["note_id", "subject_id"],
+            metadata_columns=[
+                "note_id", "subject_id", "hadm_id", "charttime", "storetime"
+            ],
         )
         data = loader.load()
 
+        embedder_test(data)
         # print(idx, filename, len(df.columns), df.shape)
         # print(df.columns)
         # pprint(df.head(5).to_dict())
