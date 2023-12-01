@@ -59,9 +59,28 @@ def get_outlier_stays(merged_df):
     merged_df['length_of_stay_zscore'] = stats.zscore(merged_df['length_of_stay_days'])
 
     outliers = merged_df[abs(merged_df['length_of_stay_zscore']) > 3]
-    long_stays = outliers.drop_duplicates(subset=['subject_id', 'hadm_id'])
+    long_stays_df = outliers.drop_duplicates(subset=['subject_id', 'hadm_id'])
 
-    return merged_df, long_stays
+    return merged_df, long_stays_df
+
+
+def long_stay_analysis(merged_df, long_stays_df):
+    plot_distributions(long_stays_df["careunit"], "careunit")
+
+    # outliers = merged_df[abs(merged_df['length_of_stay_days']) > 5]
+    #
+    # long_stays_df = outliers.drop_duplicates(subset=['subject_id', 'hadm_id'])
+    # unique_long_stays_df = long_stays_df.drop_duplicates(subset='subject_id',
+    #                                                      keep='first')
+    # # Calculate and visualize overall mortality rate among unique subject_ids
+    # total_unique_patients = len(unique_long_stays_df)
+    # unique_deaths = unique_long_stays_df['hospital_expire_flag'].sum()
+    # mortality_rate_unique = unique_deaths / long_stays_df.shape[0] * 100
+    # print(
+    #     f"Overall Mortality Rate among Unique subject_ids: {mortality_rate_unique:.2f}%"
+    # )
+
+    long_stay_per_user = long_stays_df.subject_id.value_counts().reset_index(name="counts")
 
 
 def admission_to_transfer(admissions_df, transfers_df):
@@ -75,10 +94,10 @@ def admission_to_transfer(admissions_df, transfers_df):
     )
 
     merged_df = get_length_of_stay(merged_df)
-    merged_df, long_stays = get_outlier_stays(merged_df)
-
-    plot_distributions(long_stays["careunit"], "careunit")
-    long_stay_per_user = long_stays.subject_id.value_counts().reset_index(name="counts")
+    merged_df, long_stays_df = get_outlier_stays(merged_df)
+    long_stay_analysis(long_stays_df)
+    plot_distributions(long_stays_df["careunit"], "careunit")
+    long_stay_per_user = long_stays_df.subject_id.value_counts().reset_index(name="counts")
     # get_single_distribution(merged_df, column_name='admission_type', categ="admission")
     # get_single_distribution(
     #     merged_df, column_name='discharge_location', categ="admission"
